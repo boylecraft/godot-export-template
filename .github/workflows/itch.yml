@@ -40,3 +40,20 @@ jobs:
       - name: Push to itch.io
         run: |
           ./butler push godot-export-win jmbjr/godot-export:windows
+
+      - name: Download the game from the latest release
+        id: download
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: osx.zip
+          repo: boylecraft/godot-export-template
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Unzip the game
+        run: |
+          mkdir godot-export-osx
+          unzip osx.zip -d godot-export-osx
+
+      - name: Push to itch.io
+        run: |
+          ./butler push godot-export-osx jmbjr/godot-export:mac_osx
