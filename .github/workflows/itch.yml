@@ -13,6 +13,34 @@ on:
       - prereleased
 
 jobs:
+  publish-html:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download the game from the latest release
+        id: download
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: HTML5.zip
+          repo: boylecraft/godot-export-template
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install and configure Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Unzip the game
+        run: |
+          mkdir godot-export-html5
+          unzip HTML5.zip -d godot-export-html5
+
+      - name: Push to itch.io
+        run: |
+          ./butler push godot-export-html5 jmbjr/godot-export:html5
+
   publish-win:
     runs-on: ubuntu-latest
 
