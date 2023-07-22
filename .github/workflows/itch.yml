@@ -22,7 +22,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           file: win.zip
-          repo: boylecraft/godot-export
+          repo: boylecraft/godot-export-template
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install and configure Butler
