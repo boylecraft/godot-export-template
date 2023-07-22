@@ -27,6 +27,7 @@ jobs:
           relative_export_path: ./project/__build # move export output to this directory relative to git root
           archive_output: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
+          use_godot_3: true
       - name: create release
         uses: ncipollo/release-action@v1.11.2
         with:
