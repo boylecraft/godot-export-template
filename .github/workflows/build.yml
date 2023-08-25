@@ -52,16 +52,13 @@ jobs:
         id: changelog
         run: |
           PREVIOUS_TAG=$(cat previous_tag.txt)
+	  CURRENT_TAG=$(cat buildnumber.txt)
           if [ -z "$PREVIOUS_TAG" ]; then
             echo "No previous tag found, skipping changelog generation."
           else
-            echo "List of commits since: $PREVIOUS_TAG"
-            COMMIT_HASHES=$(git rev-list --reverse --since="$PREVIOUS_TAG" HEAD)
-            for commit_hash in $COMMIT_HASHES; do
-              commit_msg=$(git log --format=%s -n 1 $commit_hash)
-              echo "- $commit_msg"
-            done > changelog.txt
-            cat changelog.txt # Debug: Print contents of changelog.txt
+            echo "List of commits between $PREVIOUS_TAG and $CURRENT_TAG"
+            git log --pretty=format:"- %s" ${PREVIOUS_TAG}..${CURRENT_TAG} > changelog.txt
+            cat changelog.txt
           fi
 
           
@@ -71,5 +68,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
           tag: ${{ github.ref_name }}
-          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt # Comma-separated list of artifacts
+          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt, previous_tag.txt # Comma-separated list of artifacts
           draft: false
