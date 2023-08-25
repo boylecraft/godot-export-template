@@ -17,6 +17,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download buildnumber.txt from latest release
+        id: download_buildnumber
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: buildnumber.txt
+          repo: boylecraft/cloudy_mountain
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Artifacts in Job 1
+        run: |
+          CURRENT_VERSION=$(cat buildnumber.txt)
+          echo "Current version in Job 1: $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
       - name: Download the game from the latest release
         id: download
         uses: dsaltares/fetch-gh-release-asset@master
@@ -39,12 +53,28 @@ jobs:
 
       - name: Push to itch.io
         run: |
-          ./butler push godot-export-html5 jmbjr/godot-export:html5
+          echo "Current Veresion = $CURRENT_VERSION"
+          ./butler push godot-export-html5 jmbjr/godot-export:html5 --userversion=$CURRENT_VERSION
 
   publish-win:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download buildnumber.txt from latest release
+        id: download_buildnumber
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: buildnumber.txt
+          repo: boylecraft/cloudy_mountain
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Use Artifacts in Job 2
+        run: |
+          CURRENT_VERSION=$(cat ./buildnumber.txt)
+          echo "Current version in Job 2: $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
       - name: Download the game from the latest release
         id: download
         uses: dsaltares/fetch-gh-release-asset@master
@@ -67,12 +97,28 @@ jobs:
 
       - name: Push to itch.io
         run: |
-          ./butler push godot-export-win jmbjr/godot-export:windows
+          echo "Current Veresion = $CURRENT_VERSION"
+          ./butler push godot-export-win jmbjr/godot-export:windows --userversion=$CURRENT_VERSION
 
   publish-mac:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Download buildnumber.txt from latest release
+        id: download_buildnumber
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: buildnumber.txt
+          repo: boylecraft/cloudy_mountain
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Artifacts in Job 3
+        run: |
+          CURRENT_VERSION=$(cat buildnumber.txt)
+          echo "Current version in Job 3: $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
       - name: Download the game from the latest release
         id: download
         uses: dsaltares/fetch-gh-release-asset@master
@@ -95,12 +141,27 @@ jobs:
 
       - name: Push to itch.io
         run: |
-          ./butler push godot-export-osx jmbjr/godot-export:mac_osx
+          echo "Current Veresion = $CURRENT_VERSION"
+          ./butler push godot-export-osx jmbjr/godot-export:mac_osx --userversion=$CURRENT_VERSION
           
   publish-linux:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download buildnumber.txt from latest release
+        id: download_buildnumber
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: buildnumber.txt
+          repo: boylecraft/cloudy_mountain
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Artifacts in Job 4
+        run: |
+          CURRENT_VERSION=$(cat buildnumber.txt)
+          echo "Current version in Job 4: $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+          
       - name: Download the game from the latest release
         id: download
         uses: dsaltares/fetch-gh-release-asset@master
@@ -123,4 +184,5 @@ jobs:
 
       - name: Push to itch.io
         run: |
-          ./butler push godot-export-linux jmbjr/godot-export:linux
+          echo "Current Veresion = $CURRENT_VERSION"
+          ./butler push godot-export-linux jmbjr/godot-export:linux --userversion=$CURRENT_VERSION
