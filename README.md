@@ -145,5 +145,3 @@ In order to configure this action to update your game's Windows exe icon, includ
 
 ### Example Projects
 See the [example projects](./examples/README.md) for more info.
-
-fake update
