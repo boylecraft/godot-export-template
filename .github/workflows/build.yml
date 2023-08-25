@@ -52,7 +52,7 @@ jobs:
         id: changelog
         run: |
           PREVIOUS_TAG=$(cat previous_tag.txt)
-	        CURRENT_TAG=$(cat buildnumber.txt)
+          CURRENT_TAG=$(cat buildnumber.txt)
           if [ -z "$PREVIOUS_TAG" ]; then
             echo "No previous tag found, skipping changelog generation."
           else
