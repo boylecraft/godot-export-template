@@ -22,7 +22,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           file: buildnumber.txt
-          repo: boylecraft/cloudy_mountain
+          repo: boylecraft/godot-export-template
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Use Artifacts in Job 1
@@ -65,7 +65,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           file: buildnumber.txt
-          repo: boylecraft/cloudy_mountain
+          repo: boylecraft/godot-export-template
           token: ${{ secrets.GITHUB_TOKEN }}
 
 
@@ -110,7 +110,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           file: buildnumber.txt
-          repo: boylecraft/cloudy_mountain
+          repo: boylecraft/godot-export-template
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Use Artifacts in Job 3
@@ -153,7 +153,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           file: buildnumber.txt
-          repo: boylecraft/cloudy_mountain
+          repo: boylecraft/godot-export-template
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Use Artifacts in Job 4
