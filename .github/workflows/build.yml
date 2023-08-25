@@ -60,7 +60,7 @@ jobs:
             for commit_hash in $COMMIT_HASHES; do
               commit_msg=$(git log --format=%s -n 1 $commit_hash)
               echo "- $commit_msg"
-            done > changelog2.txt
+            done > changelog.txt
             cat changelog.txt # Debug: Print contents of changelog.txt
           fi
 
