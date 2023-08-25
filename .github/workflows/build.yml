@@ -30,7 +30,10 @@ jobs:
           use_godot_3: true
 
       - name: Fetch tags
-        run: git fetch --tags --force # we --force due to something odd going on with git fetch conflicting with the local vs remote tag. I did checks to ensure that the commits are correct. see commit message
+        run: |
+          git show-ref --tags > git_show_refs-pre.txt
+          git fetch --tags --force # we --force due to something odd going on with git fetch conflicting with the local vs remote tag. I did checks to ensure that the commits are correct. see commit message
+          git show-ref --tags > git_show_refs-post.txt
 
       - name: determine previous tag and save current tag
         id: get_previous_tag
@@ -59,6 +62,8 @@ jobs:
             echo "List of commits between $PREVIOUS_TAG and $CURRENT_TAG"
             git log --pretty=format:"- %s" ${PREVIOUS_TAG}..${CURRENT_TAG} > changelog.txt
             cat changelog.txt
+            git log --oneline > gitlog.txt
+            git show-ref --tags > git_show_refs.txt
           fi
 
           
@@ -68,5 +73,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
           tag: ${{ github.ref_name }}
-          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt, previous_tag.txt # Comma-separated list of artifacts
+          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt, previous_tag.txt, gitlog.txt, git_show_refs.txt, git_show_refs-pre.txt, git_show_refs-post.txt # Comma-separated list of artifacts
           draft: false
