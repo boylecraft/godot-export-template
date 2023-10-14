@@ -14,12 +14,17 @@ jobs:
         uses: actions/checkout@v3.3.0
         with:
           fetch-depth: 0
-          
+
+      - name: Update Repositories
+        run: sudo apt-get update
+
       - name: install wine
         id: wine_install
         run: |
           sudo apt install wine64
           echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
+
+          
       - name: export game
         id: export
         uses: firebelley/godot-export@v5.1.0
@@ -33,10 +38,7 @@ jobs:
           use_godot_3: true
 
       - name: Fetch tags
-        run: |
-          git show-ref --tags > git_show_refs-pre.txt
-          git fetch --tags --force # we --force due to something odd going on with git fetch conflicting with the local vs remote tag. I did checks to ensure that the commits are correct. see commit message
-          git show-ref --tags > git_show_refs-post.txt
+        run: git fetch --tags --force # we --force due to something odd going on with git fetch conflicting with the local vs remote tag. I did checks to ensure that the commits are correct. see commit message
 
       - name: determine previous tag and save current tag
         id: get_previous_tag
@@ -45,7 +47,6 @@ jobs:
           PREVIOUS_TAG=$(git tag --sort=-committerdate | grep -B 1 "${{ github.ref_name }}" | head -n 1)
           echo "$PREVIOUS_TAG" > previous_tag.txt
           echo "${{ github.ref_name }}" > buildnumber.txt
-
       - name: Upload txt files as artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -53,7 +54,6 @@ jobs:
           path: |
             previous_tag.txt
             buildnumber.txt
-
       - name: generate changelog
         id: changelog
         run: |
@@ -65,10 +65,7 @@ jobs:
             echo "List of commits between $PREVIOUS_TAG and $CURRENT_TAG"
             git log --pretty=format:"- %s" ${PREVIOUS_TAG}..${CURRENT_TAG} > changelog.txt
             cat changelog.txt
-            git log --oneline > gitlog.txt
-            git show-ref --tags > git_show_refs.txt
           fi
-
           
       - name: create release
         uses: ncipollo/release-action@v1.11.2
@@ -76,5 +73,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
           tag: ${{ github.ref_name }}
-          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt, previous_tag.txt, gitlog.txt, git_show_refs.txt, git_show_refs-pre.txt, git_show_refs-post.txt # Comma-separated list of artifacts
+          artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt # Comma-separated list of artifacts
           draft: false
