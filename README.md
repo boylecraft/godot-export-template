@@ -68,7 +68,7 @@
 
 
 
-# ----------------------- Original README from firebelley/godot-export ----------------------------
+# -------- Original README from firebelley/godot-export --------
 
 # Godot Export
 A workflow action to automatically export your Godot games. Supports standard and **Mono** builds!
