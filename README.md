@@ -49,6 +49,9 @@
   3. Set this game to be played in a browser
   - If you don't do this, then when you upload your new files via the itch.yml action, the game won't be playable in the browser.
   - **IMPORTANT: after the first upload, you will need to go and delete this dummy html5.zip file and ensure your correct html5 build is the top listed one in your Uploads.**
+  - ![Delete the old HTML5.zip](https://github.com/boylecraft/godot-export-template/assets/3990931/26d21a19-5714-45fc-abf7-eb1817277618)
+  - ![Move HTML5 release to the top of **Uploads**](https://github.com/boylecraft/godot-export-template/assets/3990931/abf66a16-cc5d-47bb-b6da-3f5f7a3ea8a6)
+
 
 ## Bonus
 - If you use the [Itch launcher app](https://itch.io/app) it will keep your game up-to-date (I think there's a bit of a lag, but you can manually force an update)
