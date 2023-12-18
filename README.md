@@ -1,5 +1,5 @@
 # Instructions for using this as a GitHub Template:
-- NOTE: This was originally forked from:
+- NOTE: This was originally forked from [firebelley/godot-export on GitHub](https://github.com/firebelley/godot-export)
 - I converted the fork to a github template and added an action to push releases to Itch.
 
 ## High Level:
@@ -30,7 +30,10 @@
 
 ## At this point you should be able to create a release and tag it to trigger the actions.
 - I think you can do this via "Draft New Release" on GitHub.com, but I generally do it via creating a tag locally and pushing.
-- NOTE: in .github/workflows/build.yml the 
+  - In fact, whenever I try to do this via the GitHub Release page, I get an error in the pipeline complaining about a release validation failure
+  - ![release validation failure](https://github.com/boylecraft/godot-export-template/assets/3990931/aed16c81-fe07-41a6-b074-7d82a532321a)
+
+- Here's how I tag releases locally and push to GitHub in case you aren't familiar with tags
   1. `git tag -a v0.0.1 -m "New version/release"`
   1. `git push`
   1. `git push --tags`
@@ -57,6 +60,8 @@
 - NOTE: I also don't know how many old versions Itch.io keeps around
 
 
+
+# Original README from firebelley/godot-export.
 
 # Godot Export
 A workflow action to automatically export your Godot games. Supports standard and **Mono** builds!
