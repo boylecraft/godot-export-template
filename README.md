@@ -39,6 +39,10 @@
   1. `git push --tags`
 - You can watch your builds on the actions page of your repo
 
+## Itch.io Tip
+- If you don't want to make your game public, you can make it restricted and set a password:
+- ![How to restrict your game page and set a password](https://github.com/boylecraft/godot-export-template/assets/3990931/0d4ba8e2-6995-457d-9388-9e01a569e5e3)
+
 ## CAVEATS
 - If your game is an html5 game (and if you are making a 2D game, it probably should be html5) you will need to prep your itch.io game page prior to pushing your first release
   - I don't know how to bypass this janky workflow. Please let me know if you find a better solution
@@ -64,7 +68,7 @@
 
 
 
-# Original README from firebelley/godot-export.
+# ----------------------- Original README from firebelley/godot-export ----------------------------
 
 # Godot Export
 A workflow action to automatically export your Godot games. Supports standard and **Mono** builds!
