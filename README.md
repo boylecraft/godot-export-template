@@ -1,3 +1,63 @@
+# Instructions for using this as a GitHub Template:
+- NOTE: This was originally forked from:
+- I converted the fork to a github template and added an action to push releases to Itch.
+
+## High Level:
+1. Trigger a release by pushing a tag that starts with `v`.
+  - You could edit this in .github/workflows/build.yml to set a different trigger
+  - The release is built in GitHub using the official Godot releases and Export Templates (you will need to set the appropriate version)
+  - The release also uses `git describe` to generate a unique version number that is used to label your releases on GitHub and on itch.
+  - Currently the build process runs html5, windows, mac, and linux.
+1. After a release is successfully created, .github/workflows/itch.yml runs to push the releases to your itch game page (via the itch Butler API)
+
+
+## Instructions
+1. Create a new repo using this as the template (you could also restructure your existing project and update the action files accordingly)
+1. Edit ./github/workflows/build.yml to set the correct version of Godot you are using (you may need to check the [Godot Github for the actual release URLs](https://github.com/godotengine/godot-builds/releases/))
+1. Create your Itch.io project page
+1. Edit ./github/workflow/itch.yml:
+  - Set the paths for your GitHub repo
+  - Set the paths for your Itch repo
+  - ![Highlighted Locations to change](image.png)
+1. Create an Itch API key
+  - Open your Itch Settings
+  - ![Itch Settings](image-2.png)
+  - Go to the Developer section and create a new API Key
+  - ![Create Itch API Key](image-3.png)
+  - Copy the key
+1. Add your Itch API Key to your GitHub as a New Repository Secret. Name it "ITCH_API_KEY" to match the name in itch.yml
+  - ![New Repo Secret for Itch API Key](image-1.png)
+
+## At this point you should be able to create a release and tag it to trigger the actions.
+- I think you can do this via "Draft New Release" on GitHub.com, but I generally do it via creating a tag locally and pushing.
+- NOTE: in .github/workflows/build.yml the 
+  1. `git tag -a v0.0.1 -m "New version/release"`
+  1. `git push`
+  1. `git push --tags`
+- You can watch your builds on the actions page of your repo
+
+## CAVEATS
+- If your game is an html5 game (and if you are making a 2D game, it probably should be html5) you will need to prep your itch.io game page prior to pushing your first release
+  - I don't know how to bypass this janky workflow. Please let me know if you find a better solution
+  1. Before your first push to itch, set up your itch.io/game page as an HTML5 project
+    - ![Set up project as HTML5](image-4.png)
+  2. Next, upload a zip file with valid html5 game files in it.
+    - ![upload html5.zip](image-5.png)
+  3. Set this game to be played in a browser
+  - If you don't do this, then when you upload your new files via the itch.yml action, the game won't be playable in the browser.
+  - **IMPORTANT: after the first upload, you will need to go and delete this dummy html5.zip file and ensure your correct html5 build is the top listed one in your Uploads.**
+
+## Bonus
+- If you use the [Itch launcher app](https://itch.io/app) it will keep your game up-to-date (I think there's a bit of a lag, but you can manually force an update)
+- But a cooler trick is that you can always revert back to an older version without having to mess with git or download an old release from GitHub.
+1. ![Itch App Launcher Manage Settings](image-7.png)
+1. ![Switch to different version](image-6.png)
+1. ![Select old version](image-8.png)
+- NOTE: It doesn't appear that you can go back more than a couple dozen versions. 
+- NOTE: I also don't know how many old versions Itch.io keeps around
+
+
+
 # Godot Export
 A workflow action to automatically export your Godot games. Supports standard and **Mono** builds!
 
