@@ -1,5 +1,11 @@
 name: Publish_Release
 
+env: 
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
+  BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+  GITHUB_REPO: boylecraft/godot-export-template
+  ITCH_PROJECT: jmbjr/godot-export
+
 on:
   push:
     tags:
@@ -11,7 +17,7 @@ jobs:
     name: Export Game Job
     steps:
       - name: checkout
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -24,18 +30,23 @@ jobs:
           sudo apt install wine64
           echo "WINE_PATH=$(which wine64)" >> $GITHUB_OUTPUT
 
-          
+      - name: remove aseprite wizard addon
+        run: rm -rf ./project/addons/AsepriteWizard
+
       - name: export game
         id: export
-        uses: firebelley/godot-export@v5.1.0
+        uses: firebelley/godot-export@v5.2.1
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot-builds/releases/download/3.5.2-stable/Godot_v3.5.2-stable_linux_headless.64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot-builds/releases/download/3.5.2-stable/Godot_v3.5.2-stable_export_templates.tpz
+          godot_executable_download_url: https://github.com/godotengine/godot-builds/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot-builds/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           relative_project_path: ./project # build the standard project
           relative_export_path: ./project/__build # move export output to this directory relative to git root
           archive_output: true
+          cache: true # Use the GitHub Actions workflow cache to cache the Godot export templates and Godot executable. Helps speed up builds by not having to download them every time.
+          export_debug: true 
+          verbose: true
           wine_path: ${{ steps.wine_install.outputs.WINE_PATH }}
-          use_godot_3: true
+          use_godot_3: false
 
       - name: Fetch tags
         run: git fetch --tags --force # we --force due to something odd going on with git fetch conflicting with the local vs remote tag. I did checks to ensure that the commits are correct. see commit message
@@ -43,35 +54,101 @@ jobs:
       - name: determine previous tag and save current tag
         id: get_previous_tag
         run: |
-          git tag --sort=-committerdate | grep -B 1 "${{ github.ref_name }}"
-          PREVIOUS_TAG=$(git tag --sort=-committerdate | grep -B 1 "${{ github.ref_name }}" | head -n 1)
+          # Get the most recent tag in the form vX.Y.Z, ignoring anything with trailing characters
+          PREVIOUS_TAG=$(git tag --sort=-committerdate | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$" | grep -v "${{ github.ref_name }}" | head -n 1)
           echo "$PREVIOUS_TAG" > previous_tag.txt
           echo "${{ github.ref_name }}" > buildnumber.txt
-      - name: Upload txt files as artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: previous-tag-and-current-build
-          path: |
-            previous_tag.txt
-            buildnumber.txt
+
       - name: generate changelog
         id: changelog
         run: |
           PREVIOUS_TAG=$(cat previous_tag.txt)
           CURRENT_TAG=$(cat buildnumber.txt)
+          echo "Changelog for $CURRENT_TAG" > changelog.txt
+          
           if [ -z "$PREVIOUS_TAG" ]; then
             echo "No previous tag found, skipping changelog generation."
           else
-            echo "List of commits between $PREVIOUS_TAG and $CURRENT_TAG"
-            git log --pretty=format:"- %s" ${PREVIOUS_TAG}..${CURRENT_TAG} > changelog.txt
+            echo "New commits since previous major release: $PREVIOUS_TAG" >> changelog.txt
+            git log --pretty=format:"- %s" ${PREVIOUS_TAG}..${CURRENT_TAG} >> changelog.txt
             cat changelog.txt
           fi
-          
+
+      - name: Upload txt files as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: previous-tag-and-current-build
+          path: |
+            previous_tag.txt
+            buildnumber.txt
+            changelog.txt
+
       - name: create release
-        uses: ncipollo/release-action@v1.11.2
+        uses: ncipollo/release-action@v1.14.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           generateReleaseNotes: true
+          bodyFile: changelog.txt
           tag: ${{ github.ref_name }}
           artifacts: ${{ steps.export.outputs.archive_directory }}/*, changelog.txt, buildnumber.txt # Comma-separated list of artifacts
           draft: false
+
+  deploy_to_itch:
+    runs-on: ubuntu-latest
+    needs: export_game
+    strategy:
+      matrix:
+        platform: [windows, linux, mac_osx, html5]
+        include:
+          - platform: windows
+            export_path: "godot-export-win"
+            artifact_path: "win.zip "
+          - platform: linux
+            export_path: "godot-export-linux"
+            artifact_path: "LinuxX11.zip"
+          - platform: mac_osx
+            export_path: "godot-export-osx"
+            artifact_path: "osx.zip"
+          - platform: html5
+            export_path: "godot-export-html5"
+            artifact_path: "HTML5.zip"
+
+    steps:
+      - name: Install and configure Butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          ./butler -V
+
+      - name: Download buildnumber.txt from latest release
+        id: download_buildnumber
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: buildnumber.txt
+          repo: ${{ env.GITHUB_REPO }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Use Artifacts
+        run: |
+          CURRENT_VERSION=$(cat buildnumber.txt)
+          echo "Current version: $CURRENT_VERSION"
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+      - name: Download the game from the latest release
+        id: download
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          file: ${{ matrix.artifact_path }}
+          repo: ${{ env.GITHUB_REPO }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Unzip the game
+        run: |
+          mkdir ${{ matrix.export_path }}
+          unzip ${{ matrix.artifact_path }} -d ${{ matrix.export_path }}
+
+      - name: Push to itch.io
+        run: |
+          echo "Current Veresion = $CURRENT_VERSION"
+          ./butler push ${{ matrix.export_path }} ${{ env.ITCH_PROJECT }}:${{ matrix.platform }} --userversion=$CURRENT_VERSION
